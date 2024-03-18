@@ -1,0 +1,162 @@
+task 5
+#include <iostream>
+#include <vector>
+#include <string>
+
+// Book class
+class Book {
+private:
+    std::string title;
+    std::string author;
+    std::string ISBN;
+    bool available;
+
+public:
+    Book(const std::string& title, const std::string& author, const std::string& ISBN)
+        : title(title), author(author), ISBN(ISBN), available(true) {}
+
+    // Getters
+    std::string getTitle() const { return title; }
+    std::string getAuthor() const { return author; }
+    std::string getISBN() const { return ISBN; }
+    bool isAvailable() const { return available; }
+
+    // Setters
+    void setAvailability(bool availability) { available = availability; }
+};
+
+// Borrower class
+class Borrower {
+private:
+    int borrowerID;
+    std::string name;
+    std::string contactInfo;
+
+public:
+    Borrower(int borrowerID, const std::string& name, const std::string& contactInfo)
+        : borrowerID(borrowerID), name(name), contactInfo(contactInfo) {}
+
+    // Getters
+    int getBorrowerID() const { return borrowerID; }
+    std::string getName() const { return name; }
+    std::string getContactInfo() const { return contactInfo; }
+};
+
+// Transaction class
+class Transaction {
+private:
+    Book book;
+    Borrower borrower;
+    std::string checkoutDate;
+    std::string returnDate;
+
+public:
+    Transaction(const Book& book, const Borrower& borrower, const std::string& checkoutDate)
+        : book(book), borrower(borrower), checkoutDate(checkoutDate) {}
+
+    // Getters
+    Book getBook() const { return book; }
+    Borrower getBorrower() const { return borrower; }
+    std::string getCheckoutDate() const { return checkoutDate; }
+    std::string getReturnDate() const { return returnDate; }
+
+    // Setter
+    void setReturnDate(const std::string& returnDate) { this->returnDate = returnDate; }
+};
+
+// Library class
+class Library {
+private:
+    std::vector<Book> books;
+    std::vector<Borrower> borrowers;
+    std::vector<Transaction> transactions;
+
+public:
+    // Functions for book management
+    void addBook(const std::string& title, const std::string& author, const std::string& ISBN) {
+        books.push_back(Book(title, author, ISBN));
+    }
+
+    void displayBooks() const {
+        std::cout << "Books in the library:\n";
+        for (const auto& book : books) {
+            std::cout << "Title: " << book.getTitle() << ", Author: " << book.getAuthor() << ", ISBN: " << book.getISBN() << std::endl;
+        }
+    }
+
+    Book* findBookByISBN(const std::string& ISBN) {
+        for (auto& book : books) {
+            if (book.getISBN() == ISBN) {
+                return &book;
+            }
+        }
+        return nullptr;
+    }
+
+    // Functions for borrower management
+    void addBorrower(int borrowerID, const std::string& name, const std::string& contactInfo) {
+        borrowers.push_back(Borrower(borrowerID, name, contactInfo));
+    }
+
+    void displayBorrowers() const {
+        std::cout << "Library borrowers:\n";
+        for (const auto& borrower : borrowers) {
+            std::cout << "ID: " << borrower.getBorrowerID() << ", Name: " << borrower.getName() << ", Contact Info: " << borrower.getContactInfo() << std::endl;
+        }
+    }
+
+    Borrower* findBorrowerByID(int borrowerID) {
+        for (auto& borrower : borrowers) {
+            if (borrower.getBorrowerID() == borrowerID) {
+                return &borrower;
+            }
+        }
+        return nullptr;
+    }
+
+    // Functions for transaction management
+    void checkoutBook(const Book& book, const Borrower& borrower, const std::string& checkoutDate) {
+        transactions.push_back(Transaction(book, borrower, checkoutDate));
+        book.setAvailability(false);
+    }
+
+    void returnBook(const Book& book, const std::string& returnDate) {
+        for (auto& transaction : transactions) {
+            if (transaction.getBook().getISBN() == book.getISBN() && transaction.getReturnDate().empty()) {
+                transaction.setReturnDate(returnDate);
+                book.setAvailability(true);
+                break;
+            }
+        }
+    }
+};
+
+int main() {
+    // Create a library instance
+    Library library;
+
+    // Add some books
+    library.addBook("Book1", "Author1", "ISBN1");
+    library.addBook("Book2", "Author2", "ISBN2");
+    library.addBook("Book3", "Author3", "ISBN3");
+
+    // Display books in the library
+    library.displayBooks();
+
+    // Add some borrowers
+    library.addBorrower(1, "Borrower1", "Contact1");
+    library.addBorrower(2, "Borrower2", "Contact2");
+
+    // Display borrowers
+    library.displayBorrowers();
+
+    // Perform checkout and return operations (example)
+    Book* book1 = library.findBookByISBN("ISBN1");
+    Borrower* borrower1 = library.findBorrowerByID(1);
+    if (book1 && borrower1) {
+        library.checkoutBook(*book1, *borrower1, "2024-03-18");
+        library.returnBook(*book1, "2024-03-25");
+    }
+
+    return 0;
+}
